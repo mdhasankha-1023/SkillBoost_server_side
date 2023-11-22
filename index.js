@@ -67,6 +67,15 @@ async function run() {
       res.send(result)
     })
 
+    // get selected course
+    app.get('/selected-courses/:email', async (req, res) => {
+      const email = req.params.email;
+      console.log(email);
+      const query = {studentEmail: email}
+      const result = await selectedCourseCollection.find(query).toArray();
+      res.send(result)
+    } )
+
 
     // instructor related routes
     // GET INSTRUCTOR COURSES
