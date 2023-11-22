@@ -31,7 +31,10 @@ async function run() {
     // mongodb collection
     const courseCollection = client.db('skillBoost_server').collection('courses');
     const userCollection = client.db('skillBoost_server').collection('users');
+    const selectedCourseCollection = client.db('skillBoost_server').collection('selectedCourses');
 
+
+    // course related route
     //  get all courses 
     app.get('/courses', async(req, res) => {
         const result = await courseCollection.find().toArray();
@@ -46,6 +49,26 @@ async function run() {
       res.send(result)
     })
 
+    // selected course post
+    app.post('/selected-courses/:email', async (req, res) => {
+      const email = req.params.email;
+      const course = req.body;
+      const {studentEmail, selectedId} = course;
+
+      // condition for avoid duplicate data
+      if(email === studentEmail){
+        const query = {selectedId: selectedId}
+        const filter = await selectedCourseCollection.findOne(query);
+        if(filter){
+          return res.send({message: 'This card is already added'})
+        }
+      }
+      const result = await selectedCourseCollection.insertOne(course);
+      res.send(result)
+    })
+
+
+    // instructor related routes
     // GET INSTRUCTOR COURSES
     app.get('/courses/:email', async (req, res) => {
       const userEmail = req.params.email;
@@ -56,7 +79,7 @@ async function run() {
     })
 
 
-    // users database
+    // users related routes
     app.post('/users', async(req, res) => {
       const userInfo = req.body;
       // console.log(userInfo);
@@ -74,7 +97,6 @@ async function run() {
       const result = await userCollection.find().toArray();
       res.send(result)
     })
-
 
 
 
